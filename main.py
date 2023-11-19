@@ -3,7 +3,7 @@ from context_free_grammar import ContextFreeGrammar
 
 arquivo_gramatica = ContextFreeGrammarFile('convcc20231.txt')
 g = arquivo_gramatica.read_file()
-# print(g.isLL1())
+print(g.isLL1())
 
 # IFSTAT -> if(EXPRESSION)STATEMENTIFSTATOPTS
 # IFSTATOPTS -> elseSTATEMENT
@@ -13,7 +13,7 @@ g = arquivo_gramatica.read_file()
 # IFSTAT -> if(EXPRESSION){STATEMENT}IFSTATOPTS
 # IFSTATOPTS -> else{STATEMENT}
 
-arquivo_analise = 'codigo.txt'
+arquivo_analise = 'codigo1.txt'
 with open(arquivo_analise, 'r') as arquivo:
     codigo = arquivo.read()
     codigo = codigo.replace(" ", "").replace("\n", "")
