@@ -34,6 +34,7 @@ class ContextFreeGrammar:
     def terminals(self, terminals) -> None:
         self.__terminals = terminals
 
+
     @property
     def productions(self) -> dict:
         return self.__productions
@@ -228,7 +229,7 @@ class ContextFreeGrammar:
             else:
                 first_symbol = production[:-i]
             
-            if first_symbol in self.__terminals + self.__non_terminals + ['&']:
+            if first_symbol in self.__terminals + self.__non_terminals + ['&', 'call']:
                 rest_production = production[len(first_symbol):]
                 return first_symbol, rest_production
             else:
@@ -440,7 +441,7 @@ class ContextFreeGrammar:
         analysis_table = {}
         for non_terminal in self.__non_terminals:
             analysis_table[non_terminal] = {}
-            for terminal in self.__terminals + ['$']:
+            for terminal in self.__terminals + ['$', 'call']:
                 analysis_table[non_terminal][terminal] = None
 
             for non_terminal_production in self.__productions[non_terminal]:
@@ -454,6 +455,8 @@ class ContextFreeGrammar:
                     non_terminal_follows = follows[non_terminal]
                     for non_terminal_follow in non_terminal_follows:
                         analysis_table[non_terminal][non_terminal_follow] = non_terminal_production
+            
+        analysis_table['ATRIBOPTS']['call'] = 'FUNCCALL'
         
         return analysis_table
 
