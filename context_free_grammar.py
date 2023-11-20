@@ -1,5 +1,7 @@
 from tabulate import tabulate
 
+from analLexica import get_type
+
 
 class ContextFreeGrammar:
     def __init__(
@@ -221,7 +223,7 @@ class ContextFreeGrammar:
 
     
     # Separa o primeiro simbolo da produção e o resto dela.
-    def _get_first_symbol_in_production_and_rest(self, production: str) -> tuple:
+    def _get_first_symbol_in_production_and_rest(self, production: str, symbol_table: list = None) -> tuple:
         i = 0
         while i < len(production):
             if i == 0:
@@ -233,6 +235,24 @@ class ContextFreeGrammar:
                 rest_production = production[len(first_symbol):]
                 return first_symbol, rest_production
             else:
+                if symbol_table != None:
+                    t = get_type(first_symbol, symbol_table)
+                    if t == 'IDENTIFICADOR':
+                        rest_production = production[len(first_symbol):]
+                        first_symbol = 'ident'
+                        return first_symbol, rest_production
+                    if t == 'NUMERO_INTEIRO':
+                        rest_production = production[len(first_symbol):]
+                        first_symbol = 'int_constant'
+                        return first_symbol, rest_production
+                    if t == 'NUMERO_PONTO_FLUTUANTE':
+                        rest_production = production[len(first_symbol):]
+                        first_symbol = 'float_constant'
+                        return first_symbol, rest_production
+                    if t == 'STRING':
+                        rest_production = production[len(first_symbol):]
+                        first_symbol = 'string_constant'
+                        return first_symbol, rest_production
                 i += 1
         return None, None
 
@@ -394,10 +414,10 @@ class ContextFreeGrammar:
         return follows
 
 
-    def _production_split(self, production: str) -> list:
+    def _production_split(self, production: str, symbol_table: list = None) -> list:
         production_symbols = []
         while True:
-            first_symbol, rest = self._get_first_symbol_in_production_and_rest(production)
+            first_symbol, rest = self._get_first_symbol_in_production_and_rest(production, symbol_table)
             production_symbols.append(first_symbol)
             production = rest
             if production == None:
@@ -495,7 +515,7 @@ class ContextFreeGrammar:
 
 
     # Reconhece a sentença.
-    def recognize_sentence_ll1(self, sentence: str) -> bool:
+    def recognize_sentence_ll1(self, sentence: str, symbol_table: list) -> bool:
         firsts = self.get_firsts()
         follows = self.get_follows(firsts)
         if not self.isLL1(firsts, follows):
@@ -504,11 +524,12 @@ class ContextFreeGrammar:
         
         analysis_table = self.create_LL1_analysis_table(firsts, follows)
 
-        sentence_split = self._production_split(sentence)
+        sentence_split = self._production_split(sentence, symbol_table)
         if sentence_split == [None]:
             if sentence == '':
                 sentence_split = []
             else:
+                print('Erro sintático.')
                 return False
 
         w = sentence_split + ['$']
@@ -523,8 +544,10 @@ class ContextFreeGrammar:
                 X = stack.pop(0)
                 a = w.pop(0)
             elif X in self.__terminals:
+                print('Erro sintático.')
                 return False
             elif analysis_table[X][a] == None:
+                print('Erro sintático.')
                 return False
             elif analysis_table[X][a] == '&':
                 X = stack.pop(0)
@@ -532,6 +555,7 @@ class ContextFreeGrammar:
                 stack = self._production_split(analysis_table[X][a]) + stack
                 X = stack.pop(0)
 
+        print('Análise sintática finalizada com sucesso.')
         return True
 
 

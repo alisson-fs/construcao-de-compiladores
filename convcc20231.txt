@@ -2,7 +2,7 @@
 #NonTerminals
 PROGRAM | PROGRAMOPTS | FUNCLIST | FUNCLIST' | FUNCDEF | PARAMLIST | PARAMLISTOPTS | PARAMLISTOPTS' | PARAMTYPE | STATEMENT | VARDECL | INTCONSTRECR | INTCONSTRECR' | ATRIBSTAT | ATRIBOPTS | FUNCCALL | PARAMLISTCALL | PARAMLISTCALLOPTS | PARAMLISTCALLOPTS' | PRINTSTAT | READSTAT | RETURNSTAT | IFSTAT | IFSTATOPTS | FORSTAT | STATELIST | STATELISTOPTS | ALLOCEXPRESSION | ALLOCEXPRRECR | ALLOCEXPRRECR' | EXPRESSION | EXPRESSIONOPTS | COMPARESIGNS | NUMEXPRESSION | NUMEXPRESSRECR | NUMEXPRESSRECR' | ADDSIGNS | TERM | TERMRECR | TERMRECR' | MULTSIGNS | UNARYEXPR | UNARYEXPROPTS | FACTOR | LVALUE | LVALUERECR | LVALUERECR'
 #Terminals
-int | float | string | ident | print | read | return | if | for | break | ; | def | , | ( | ) | [ | ] | { | } | + | - | new | else | < | > | <= | >= | == | != | = | * | / | % | null | int_constant | float_constant | string_constant
+int | float | string | ident | print | read | return | if | for | break | ; | def | , | ( | ) | [ | ] | { | } | + | - | new | else | < | > | <= | >= | == | != | = | * | / | % | null | int_constant | float_constant | string_constant | call
 #InitialSymbol
 PROGRAM
 #Productions
