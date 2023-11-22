@@ -1,5 +1,6 @@
 from tabulate import tabulate
 from anal_lexica import get_type
+import copy
 
 
 class ContextFreeGrammar:
@@ -527,6 +528,7 @@ class ContextFreeGrammar:
 
     # Reconhece a sentença.
     def recognize_sentence_ll1(self, sentence: str, symbol_table: list) -> bool:
+        symbol_table_copy = copy.deepcopy(symbol_table)
         firsts = self.get_firsts()
         follows = self.get_follows(firsts)
         if not self.isLL1(firsts, follows):
@@ -535,7 +537,7 @@ class ContextFreeGrammar:
         
         analysis_table = self.create_LL1_analysis_table(firsts, follows)
 
-        sentence_split, equivalent_symbol_list = self._production_split(sentence, symbol_table)
+        sentence_split, equivalent_symbol_list = self._production_split(sentence, symbol_table_copy)
         if sentence_split == [None]:
             if sentence == '':
                 sentence_split = []
@@ -547,7 +549,7 @@ class ContextFreeGrammar:
         equivalent_symbol_list = equivalent_symbol_list + ['$']
         for symbol in w:
             if symbol not in self.__terminals + ['$']:
-                symbol = self.get_symbol_in_symbol_table(symbol_table, equivalent_symbol)
+                symbol = self.get_symbol_in_symbol_table(symbol_table_copy, equivalent_symbol)
                 position = symbol['occurrence'].pop(0)
                 print(f'Erro sintático na linha {position[0]} e coluna {position[1]}.')
                 return False
@@ -557,18 +559,18 @@ class ContextFreeGrammar:
         X = stack.pop(0)
         while X != '$':
             if X == a:
-                symbol = self.get_symbol_in_symbol_table(symbol_table, equivalent_symbol)
+                symbol = self.get_symbol_in_symbol_table(symbol_table_copy, equivalent_symbol)
                 symbol['occurrence'].pop(0)
                 X = stack.pop(0)
                 a = w.pop(0)
                 equivalent_symbol = equivalent_symbol_list.pop(0)
             elif X in self.__terminals:
-                symbol = self.get_symbol_in_symbol_table(symbol_table, equivalent_symbol)
+                symbol = self.get_symbol_in_symbol_table(symbol_table_copy, equivalent_symbol)
                 position = symbol['occurrence'].pop(0)
                 print(f'Erro sintático na linha {position[0]} e coluna {position[1]}.')
                 return False
             elif analysis_table[X][a] == None:
-                symbol = self.get_symbol_in_symbol_table(symbol_table, equivalent_symbol)
+                symbol = self.get_symbol_in_symbol_table(symbol_table_copy, equivalent_symbol)
                 position = symbol['occurrence'].pop(0)
                 print(f'Erro sintático na linha {position[0]} e coluna {position[1]}.')
                 return False

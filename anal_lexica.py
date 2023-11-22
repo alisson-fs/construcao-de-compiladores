@@ -1,5 +1,6 @@
 import ply.lex as lex
 from tabulate import tabulate
+import csv
 
 
 # Definição dos tokens.
@@ -257,6 +258,14 @@ def show_table(table):
     )
 
     print(table)
+
+
+def csv_table(table):
+    with open('symbol_table.csv', mode='w', newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=['value', 'type', 'occurrence'])
+        writer.writeheader()
+        for row in table:
+            writer.writerow(row)
 
 
 def get_type(value, symbol_table):

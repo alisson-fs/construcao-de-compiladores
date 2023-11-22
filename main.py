@@ -1,5 +1,6 @@
-from anal_lexica import lexical_analysis
+from anal_lexica import csv_table, lexical_analysis
 from context_free_grammar_file import ContextFreeGrammarFile
+
 
 arquivo_gramatica = ContextFreeGrammarFile('convcc20231.txt')
 grammar = arquivo_gramatica.read_file()
@@ -13,4 +14,6 @@ with open('exemples/'+ code_file, 'r') as arquivo:
     if symbol_table != None:
         # Análise sintática
         code = code.replace(" ", "").replace("\n", "").replace("\t", "")
-        grammar.recognize_sentence_ll1(code, symbol_table)
+        sentence_recognized = grammar.recognize_sentence_ll1(code, symbol_table)
+        if sentence_recognized:
+            csv_table(symbol_table)
