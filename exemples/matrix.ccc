@@ -1,0 +1,104 @@
+def print_matrix(int matrix, int lines, int columns) {
+    int i;
+    int j;
+
+    for (i = 0; i < lines; i = i + 1) {
+        for (j = 0; j < columns; j = j + 1) {
+            print "matrix[";
+            print i;
+            print "][";
+            print j;
+            print "] = ";
+            print matrix[i][j];
+        }
+    }
+}
+
+def multiply(int matrixA, int matrixB, int linesA, int columnsA, int columnsB) {
+	int i;
+	int j;
+	int k;
+	int matrixC;
+
+	matrixC = new int[linesA+10][columnsB-10];
+
+	for (i = 0; i < linesA; i = i + 1) {
+		for (j = 0; j < columnsB; j = j + 1) {
+			matrixC[i][j] = 0;
+		}
+	}
+
+	for (i = 0; i < linesA; i = i + 1) {
+		for (j = 0; j < columnsB; j = j + 1) {
+			for (k = 0; k < columnsA; k = k + 1) {
+				matrixC[i][j] = (matrixA[i][k] * matrixB[k][j]);
+				matrixC[i][j] = matrixC[i][j] + matrixC[i][j];
+			}
+		}
+	}
+
+	int result;
+	result = call print_matrix(matrixC, linesA, columnsB);
+}
+
+def matrix_multiply_by(int matrixA, int lines, int columns, int number) {
+	int i;
+	int j;
+	
+	for (i = 0; i < lines; i = i + 1) {
+		for (j = 0; j < columns; j = j + 1) {
+			matrixA[i][j] = matrixA[i][j] * number;
+		}
+	}
+}
+
+def matrix_sum_by(int matrixA, int lines, int columns, int number) {
+	int i;
+	int j;
+	
+	for (i = 0; i < lines; i = i + 1) {
+		for (j = 0; j < columns; j = j + 1) {
+			matrixA[i][j] = matrixA[i][j] + number;
+		}
+	}
+}
+
+def main() {
+	int matrixA;
+	int matrixB;
+	int lines;
+	int columns;
+	int i;
+	int j;
+	int matrixC;
+	int result;
+	int number;
+	
+	number = 1000;
+	matrixA = new int[10][10];
+	matrixB = new int[10][10];
+	
+	lines = 10;
+	columns = 10;
+	
+	for (i = 0; i < lines; i = i + 1) {
+		for (j = 0; j < columns; j = j + 1) {
+			matrixA[i][j] = i + j;
+			matrixB[i][j] = i * j;
+		}
+	}
+	
+	result = call print_matrix(matrixA, lines, columns);
+	result = call print_matrix(matrixB, lines, columns);
+	matrixC = call multiply(matrixA,matrixB,lines,columns,columns);
+	
+	result = call matrix_multiply_by(matrixA, lines, columns, number);
+	result = call matrix_sum_by(matrixB, lines, columns, number);
+	
+	result = call print_matrix(matrixA, lines, columns);
+	result = call print_matrix(matrixB, lines, columns);
+	
+	number = -1;
+	result = call matrix_multiply_by(matrixA, lines, columns, number);
+	matrixC = call multiply(matrixA,matrixB,lines,columns,columns);
+}

@@ -1,6 +1,5 @@
 from tabulate import tabulate
-
-from analLexica import get_type
+from anal_lexica import get_type
 
 
 class ContextFreeGrammar:
@@ -148,7 +147,7 @@ class ContextFreeGrammar:
             new_productions = []
             # Loop para tranformar produções indiretas em diretas.
             for non_terminal_production in productions_updated:
-                first_symbol, rest_production = self._get_first_symbol_in_production_and_rest(non_terminal_production)
+                first_symbol, rest_production, _ = self._get_first_symbol_in_production_and_rest(non_terminal_production)
                 if first_symbol == None:
                     continue
 
@@ -186,7 +185,7 @@ class ContextFreeGrammar:
         non_determinism_cases = {}
 
         for current_production in productions:
-            first_symbol, _ = self._get_first_symbol_in_production_and_rest(current_production)
+            first_symbol, _, _ = self._get_first_symbol_in_production_and_rest(current_production)
             if first_symbol == None or first_symbol not in self.__terminals:
                 continue
 
@@ -233,28 +232,32 @@ class ContextFreeGrammar:
             
             if first_symbol in self.__terminals + self.__non_terminals + ['&', 'call']:
                 rest_production = production[len(first_symbol):]
-                return first_symbol, rest_production
+                return first_symbol, rest_production, first_symbol
             else:
                 if symbol_table != None:
                     t = get_type(first_symbol, symbol_table)
                     if t == 'IDENTIFICADOR':
+                        equivalent_symbol = first_symbol
                         rest_production = production[len(first_symbol):]
                         first_symbol = 'ident'
-                        return first_symbol, rest_production
+                        return first_symbol, rest_production, equivalent_symbol
                     if t == 'NUMERO_INTEIRO':
+                        equivalent_symbol = first_symbol
                         rest_production = production[len(first_symbol):]
                         first_symbol = 'int_constant'
-                        return first_symbol, rest_production
+                        return first_symbol, rest_production, equivalent_symbol
                     if t == 'NUMERO_PONTO_FLUTUANTE':
+                        equivalent_symbol = first_symbol
                         rest_production = production[len(first_symbol):]
                         first_symbol = 'float_constant'
-                        return first_symbol, rest_production
+                        return first_symbol, rest_production, equivalent_symbol
                     if t == 'STRING':
+                        equivalent_symbol = first_symbol
                         rest_production = production[len(first_symbol):]
                         first_symbol = 'string_constant'
-                        return first_symbol, rest_production
+                        return first_symbol, rest_production, equivalent_symbol
                 i += 1
-        return None, None
+        return None, None, None
 
 
     def remove_left_recursion(self) -> None:
@@ -265,7 +268,7 @@ class ContextFreeGrammar:
                 print('Ai= ', Ai)
                 print('Aj= ', Aj)
                 for Ai_production in self.__productions[Ai]:
-                    first_symbol, alpha = self._get_first_symbol_in_production_and_rest(Ai_production)
+                    first_symbol, alpha, _ = self._get_first_symbol_in_production_and_rest(Ai_production)
                     
                     if first_symbol == Aj and alpha != '':
                         self.__productions[Ai].remove(Ai_production)
@@ -282,7 +285,7 @@ class ContextFreeGrammar:
         productions_with_recursion = []
 
         for non_terminal_production in self.__productions[non_terminal]:
-            first_symbol, _ = self._get_first_symbol_in_production_and_rest(non_terminal_production)
+            first_symbol, _, _ = self._get_first_symbol_in_production_and_rest(non_terminal_production)
             if first_symbol == non_terminal:
                 productions_with_recursion.append(non_terminal_production)
 
@@ -293,7 +296,7 @@ class ContextFreeGrammar:
             updated_non_terminal_productions = []
 
             for non_terminal_production in self.__productions[non_terminal]:
-                _, beta = self._get_first_symbol_in_production_and_rest(non_terminal_production)
+                _, beta, _ = self._get_first_symbol_in_production_and_rest(non_terminal_production)
                 if non_terminal_production in productions_with_recursion:
                     new_non_terminal_productions.append(beta + new_non_terminal)
                 else:
@@ -336,7 +339,7 @@ class ContextFreeGrammar:
             firsts_updated = False
             for non_terminal, non_terminal_productions in self.__productions.items():
                 for non_terminal_production in non_terminal_productions:
-                    first_symbol_in_production, production_rest = self._get_first_symbol_in_production_and_rest(non_terminal_production)
+                    first_symbol_in_production, production_rest, _ = self._get_first_symbol_in_production_and_rest(non_terminal_production)
                     updated_non_terminal_first = set()
                     # Se o primeiro simbolo da produção do não terminal for um terminal, adiciona ele aos firsts do não terminal.
                     if first_symbol_in_production in self.__terminals:
@@ -360,7 +363,7 @@ class ContextFreeGrammar:
                                 updated_non_terminal_first.update(set('&'))
                                 break
 
-                            first_symbol_in_production, production_rest = self._get_first_symbol_in_production_and_rest(production_rest)
+                            first_symbol_in_production, production_rest, _ = self._get_first_symbol_in_production_and_rest(production_rest)
                             first_symbol_in_production_firsts = firsts[first_symbol_in_production]
                             updated_non_terminal_first.update(first_symbol_in_production_firsts - set('&'))
 
@@ -385,7 +388,7 @@ class ContextFreeGrammar:
             follows_updated = False
             for non_terminal, non_terminal_productions in self.__productions.items():
                 for non_terminal_production in non_terminal_productions:
-                    production_split = self._production_split(non_terminal_production)
+                    production_split, _ = self._production_split(non_terminal_production)
                     nullable_or_non_existent_beta = False
                     for index_symbol, symbol in enumerate(production_split):
                         if symbol in self.__non_terminals:
@@ -414,17 +417,19 @@ class ContextFreeGrammar:
         return follows
 
 
-    def _production_split(self, production: str, symbol_table: list = None) -> list:
+    def _production_split(self, production: str, symbol_table: list = None) -> (list, list):
         production_symbols = []
+        equivalent_symbol_list = []
         while True:
-            first_symbol, rest = self._get_first_symbol_in_production_and_rest(production, symbol_table)
+            first_symbol, rest, equivalent_symbol = self._get_first_symbol_in_production_and_rest(production, symbol_table)
             production_symbols.append(first_symbol)
+            equivalent_symbol_list.append(equivalent_symbol)
             production = rest
             if production == None:
                 break
             if len(production) == 0:
                 break
-        return production_symbols
+        return production_symbols, equivalent_symbol_list
 
 
     def _beta_firsts(self, beta, firsts) -> set:
@@ -514,6 +519,12 @@ class ContextFreeGrammar:
         print(table)
 
 
+    def get_symbol_in_symbol_table(self, symbol_table, char) -> dict:
+        for symbol in symbol_table:
+            if symbol['value'].replace(" ", "") == char:
+                return symbol
+                
+
     # Reconhece a sentença.
     def recognize_sentence_ll1(self, sentence: str, symbol_table: list) -> bool:
         firsts = self.get_firsts()
@@ -524,35 +535,48 @@ class ContextFreeGrammar:
         
         analysis_table = self.create_LL1_analysis_table(firsts, follows)
 
-        sentence_split = self._production_split(sentence, symbol_table)
+        sentence_split, equivalent_symbol_list = self._production_split(sentence, symbol_table)
         if sentence_split == [None]:
             if sentence == '':
                 sentence_split = []
             else:
-                print('Erro sintático.')
+                print(f'Erro sintático na linha 1 e coluna 1.')
                 return False
 
         w = sentence_split + ['$']
+        equivalent_symbol_list = equivalent_symbol_list + ['$']
         for symbol in w:
             if symbol not in self.__terminals + ['$']:
+                symbol = self.get_symbol_in_symbol_table(symbol_table, equivalent_symbol)
+                position = symbol['occurrence'].pop(0)
+                print(f'Erro sintático na linha {position[0]} e coluna {position[1]}.')
                 return False
         a = w.pop(0)
+        equivalent_symbol = equivalent_symbol_list.pop(0)
         stack = [self.__initial_symbol, '$']
         X = stack.pop(0)
         while X != '$':
             if X == a:
+                symbol = self.get_symbol_in_symbol_table(symbol_table, equivalent_symbol)
+                symbol['occurrence'].pop(0)
                 X = stack.pop(0)
                 a = w.pop(0)
+                equivalent_symbol = equivalent_symbol_list.pop(0)
             elif X in self.__terminals:
-                print('Erro sintático.')
+                symbol = self.get_symbol_in_symbol_table(symbol_table, equivalent_symbol)
+                position = symbol['occurrence'].pop(0)
+                print(f'Erro sintático na linha {position[0]} e coluna {position[1]}.')
                 return False
             elif analysis_table[X][a] == None:
-                print('Erro sintático.')
+                symbol = self.get_symbol_in_symbol_table(symbol_table, equivalent_symbol)
+                position = symbol['occurrence'].pop(0)
+                print(f'Erro sintático na linha {position[0]} e coluna {position[1]}.')
                 return False
             elif analysis_table[X][a] == '&':
                 X = stack.pop(0)
             else:
-                stack = self._production_split(analysis_table[X][a]) + stack
+                new_stack, _ = self._production_split(analysis_table[X][a])
+                stack = new_stack + stack
                 X = stack.pop(0)
 
         print('Análise sintática finalizada com sucesso.')

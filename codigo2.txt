@@ -1,4 +1,0 @@
-def ident (int ident) {
-    ident[int_constant][int_constant] = ident[int_constant][int_constant] * ident[int_constant][int_constant] + ident[int_constant][int_constant]; 
-    return;
-}
