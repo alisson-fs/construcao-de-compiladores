@@ -23,3 +23,14 @@ Modificamos a produção de IFSTAT alterando a chamada do não terminal "STATEME
 ### FUNCCALL
 
 Modificamos a produção de FUNCCALL adicionando o terminal "call" no inicio da produção para identificarmos quando o indentificador é de uma função.
+
+## Dependências
+
+### Ply
+
+Rode o comando `pip install ply` no terminal.
+
+### Tabulate
+
+
+Rode o comando `pip install tabulate` no terminal.
